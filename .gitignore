@@ -1,0 +1,10 @@
+*.pyc
+*URLs.txt
+*.geany
+output
+SubmissionCache.bin
+*.bin
+LOCAL_*
+*.sublime-workspace
+*.db
+*.db-journal
