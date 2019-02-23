@@ -4,9 +4,11 @@ import tornado.ioloop
 import tornado.web
 import tornado.websocket
 import tornado.httpclient
+import tornado.httpserver
 import tornado.gen
 
 import os
+from datetime import datetime
 # import random
 # import shutil
 # import json
@@ -26,12 +28,14 @@ class UploadHandler(tornado.web.RequestHandler):
         original_filename = recording['filename']
 
         # TODO Actually look at what type the file is!
-        output_file = open('output/' + original_filename + '.ogg', 'wb')
+        outputFilename = ('output/' + original_filename +
+                           datetime.now().strftime("_%Y_%m_%d_%H_%M_%S") + '.ogg')
+        output_file = open(outputFilename, 'wb')
         output_file.write(recording['body'])
 
-        print('File ' + original_filename + ' uploaded')
+        print('File ' + outputFilename + ' uploaded')
 
-        self.finish('File ' + original_filename + ' uploaded')
+        self.finish('File ' + outputFilename + ' uploaded')
 
 #
 # Startup
@@ -71,8 +75,33 @@ if __name__ == '__main__':
     port = 8888
     print('\nStarting Song Sketcher Server on port {}...'.format(port))
     app = make_app()
-    app.listen(port)
+
+    #
+    # Notes on SSL
+    #
+    # Certificate generation (for localhost) (didn't actually work):
+    #  https://medium.freecodecamp.org/how-to-get-https-working-on-your-local-development-environment-in-5-minutes-7af615770eec?gi=bd966500e56a
+    # Tornado instructions:
+    #  https://stackoverflow.com/questions/18307131/how-to-create-https-tornado-server
+    # Note that I added the rootCA to Certificates trust in Firefox Preferences as well (didn't do anything)
+    #
+    # What I actually did:
+    # openssl req -x509 -nodes -days 365 -newkey rsa:1024 -keyout certificates/server_jupyter_based.crt.key -out certificates/server_jupyter_based.crt.pem
+    # (from https://jupyter-notebook.readthedocs.io/en/latest/public_server.html)
+    # I then had to tell Firefox to truse this certificate even though it is self-signing (because
+    # I want a free certificate for this non-serious project)
+    useSSL = True
+    if useSSL:
+        app.listen(port, ssl_options={"certfile":"certificates/server_jupyter_based.crt.pem",
+                                      "keyfile":"certificates/server_jupyter_based.crt.key"})
+    else:
+        # The problem with non-ssl version is that Firefox will ask every time whether it can use
+        #  the microphone, which gets everything out of sync
+        app.listen(port)
+        
     ioLoop = tornado.ioloop.IOLoop.current()
+    
     # updateStatusCallback = tornado.ioloop.PeriodicCallback(updateScriptStatus, 100)
     # updateStatusCallback.start()
+    
     ioLoop.start()

@@ -87,7 +87,46 @@ function toggleRecord() {
         stopRecording();
         getElement("toggleRecord").innerHTML = "Record";
     } else {
+		// Multitracker should play other tracks during recording. This will cause feedback without
+		// headphones but it's not meant to be a finished recording, just a "sketch"
+		var audioTracks = document.getElementsByTagName("audio");
+		for (var i = 0; i < audioTracks.length; i++)
+		{
+			// In case the user played individual tracks, reset their time
+			audioTracks[i].currentTime = 0;
+			audioTracks[i].play();
+		}
+		
         startRecording();
         getElement("toggleRecord").innerHTML = "Stop Recording";
+    }
+}
+
+function togglePlay() {
+
+	var audioTracks = document.getElementsByTagName("audio");
+	
+	var tracksArePlaying = false;
+	for (var i = 0; i < audioTracks.length; i++)
+	{
+		if (!audioTracks[i].paused)
+			tracksArePlaying = true;
+	}
+	
+    if (tracksArePlaying) {
+        for (var i = 0; i < audioTracks.length; i++)
+		{
+			audioTracks[i].pause();
+			audioTracks[i].currentTime = 0;
+		}
+        getElement("togglePlay").innerHTML = "Play";
+    } else {
+        for (var i = 0; i < audioTracks.length; i++)
+		{
+			// In case the user played individual tracks, reset their time
+			audioTracks[i].currentTime = 0;
+			audioTracks[i].play();
+		}
+        getElement("togglePlay").innerHTML = "Stop";
     }
 }

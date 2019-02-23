@@ -1,0 +1,25 @@
+* Song Sketcher
+
+This project is meant to be a quick-and-dirty recorder for saving song ideas.
+
+My goal was to support basic multitracking as well, but I'm not sure syncing things will be feasible.
+
+I made this because I was disappointed with the apps available on Android for doing similar things.
+
+** Setup
+
+This project requires Python 3.
+
+*** 1. Install ~tornado~
+
+#+BEGIN_SRC sh
+  pip3 install tornado
+#+END_SRC
+
+*** 2. Generate SSL keys
+
+#+BEGIN_SRC sh
+  openssl req -x509 -nodes -days 365 -newkey rsa:1024 -keyout certificates/server_jupyter_based.crt.key -out certificates/server_jupyter_based.crt.pem
+#+END_SRC
+
+These are needed because otherwise, Firefox will ask every time whether the site has permission to record with your microphone. This is a problem because everything gets out of sync, and it's annoying.
